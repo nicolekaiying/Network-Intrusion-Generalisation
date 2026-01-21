@@ -1,3 +1,5 @@
+# Trains the model to learn patterns which separates 0 and 1
+
 from pathlib import Path
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier # Machine learning model chosen
