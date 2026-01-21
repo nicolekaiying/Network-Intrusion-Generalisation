@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from pathlib import Path
 
 # Handling files
@@ -14,7 +15,10 @@ df["Label"] = df["Label"].astype(str).str.strip().str.upper()
 # Creates a new column which classifies "BENIGN" and "DDOS" into 0 and 1 respectively
 df["Is_attack"] = (df["Label"] != "BENIGN").astype(int)
 
-# Saves the sanitized dataframe to out_path
+df = df.replace([np.inf, -np.inf], np.nan)
+df = df.fillna(0)
+
+# Saves the sanitized dataframe to out_path without the index
 df.to_csv(out_path, index=False)
 
 # Debugging purposes
