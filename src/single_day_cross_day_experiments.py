@@ -5,7 +5,7 @@ from sklearn.metrics import accuracy_score, confusion_matrix, f1_score, precisio
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
-from dataset_sanity_check import PROCESSED_DIR, RESULTS_DIR, common_feature_columns, load_processed_csvs
+from dataset_feature_alignment import PROCESSED_DIR, RESULTS_DIR, common_feature_columns, load_processed_csvs
 
 
 def evaluate_predictions(true_labels, predicted_labels):
@@ -108,7 +108,8 @@ def main():
         #Creates logistic regression model object.
             max_iter=2000,
             class_weight="balanced",
-            solver="liblinear",
+            solver="saga",
+            verbose=1,
         )
         logistic_regression_model.fit(training_features_split_scaled, training_labels_split)
         #The model learns the correlation between the scaled features and its label.
@@ -186,7 +187,12 @@ def main():
         # RANDOM FOREST
 
 
-        random_forest_model = RandomForestClassifier(n_estimators=200, random_state=42, n_jobs=-1)
+        random_forest_model = RandomForestClassifier(
+            n_estimators=200,
+            class_weight="balanced",
+            random_state=42,
+            n_jobs=-1,
+        )
         random_forest_model.fit(training_features_split, training_labels_split)
 
         # IN-DOMAIN
