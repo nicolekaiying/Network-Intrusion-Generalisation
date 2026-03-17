@@ -31,6 +31,12 @@ def evaluate_predictions(true_labels, predicted_labels):
     return metrics
 
 
+def to_percentage(metrics_dict):
+    for key in ("accuracy", "precision", "recall", "f1"):
+        if key in metrics_dict:
+            metrics_dict[key] = round(metrics_dict[key] * 100, 4)
+
+
 def main():
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -39,6 +45,7 @@ def main():
     feature_columns = common_feature_columns(datasets)
 
     results_rows = []
+    per_attack_type_results_rows = []
 
     training_dataset_keys = sorted(datasets.keys())
     testing_dataset_keys = sorted(datasets.keys())
@@ -106,10 +113,10 @@ def main():
 
         logistic_regression_model = LogisticRegression(
         #Creates logistic regression model object.
-            max_iter=2000,
+            max_iter=300,
             class_weight="balanced",
-            solver="saga",
-            verbose=1,
+            solver="liblinear",
+            verbose=0,
         )
         logistic_regression_model.fit(training_features_split_scaled, training_labels_split)
         #The model learns the correlation between the scaled features and its label.
@@ -123,6 +130,7 @@ def main():
             #Asks trained logistic regression model to make predictions.
             logistic_regression_in_metrics = evaluate_predictions(in_domain_test_labels, logistic_regression_in_prediction)
             #Compare real labels: in_domain_test_labels with predicted labels: logistic_regression_in_prediction.
+            to_percentage(logistic_regression_in_metrics)
 
             row = {}
             row["model"] = "Logistic Regression"
@@ -160,6 +168,7 @@ def main():
             #Make predictions on the new test dataset.
             lr_test_metrics = evaluate_predictions(cross_domain_test_labels, logistic_regression_test_predict)
             #Compare real labels: cross_domain_test_labels with predicted labels: logistic_regression_test_predict.
+            to_percentage(lr_test_metrics)
 
             row = {}
             row["model"] = "Logistic_regression"
@@ -177,6 +186,58 @@ def main():
             row["fn"] = lr_test_metrics["fn"]
             row["tp"] = lr_test_metrics["tp"]
             results_rows.append(row)
+
+            attack_labels_in_test_dataset = sorted(test_df["Label"].dropna().unique())
+
+            for attack_label in attack_labels_in_test_dataset:
+                if attack_label == "BENIGN":
+                    continue
+
+                per_attack_type_subset_dataframe = test_df[
+                    (test_df["Label"] == "BENIGN") |
+                    (test_df["Label"] == attack_label)
+                ].copy()
+
+                per_attack_type_true_labels = per_attack_type_subset_dataframe["Is_attack"]
+                per_attack_type_predictions = logistic_regression_test_predict[
+                    per_attack_type_subset_dataframe.index
+                ]
+                per_attack_type_metrics = evaluate_predictions(
+                    per_attack_type_true_labels,
+                    per_attack_type_predictions,
+                )
+                to_percentage(per_attack_type_metrics)
+
+                attack_type_row_count = len(
+                    per_attack_type_subset_dataframe[
+                        per_attack_type_subset_dataframe["Label"] == attack_label
+                    ]
+                )
+                benign_row_count = len(
+                    per_attack_type_subset_dataframe[
+                        per_attack_type_subset_dataframe["Label"] == "BENIGN"
+                    ]
+                )
+
+                row = {}
+                row["model"] = "Logistic_regression"
+                row["train_dataset"] = train_key
+                row["test_dataset"] = test_key
+                row["evaluation"] = "cross_domain_per_attack_type"
+                row["attack_type"] = attack_label
+                row["attack_rows"] = attack_type_row_count
+                row["benign_rows"] = benign_row_count
+                row["train_rows"] = len(training_features_split)
+                row["test_rows"] = len(per_attack_type_subset_dataframe)
+                row["accuracy"] = per_attack_type_metrics["accuracy"]
+                row["precision"] = per_attack_type_metrics["precision"]
+                row["recall"] = per_attack_type_metrics["recall"]
+                row["f1"] = per_attack_type_metrics["f1"]
+                row["tn"] = per_attack_type_metrics["tn"]
+                row["fp"] = per_attack_type_metrics["fp"]
+                row["fn"] = per_attack_type_metrics["fn"]
+                row["tp"] = per_attack_type_metrics["tp"]
+                per_attack_type_results_rows.append(row)
 
             print(f"[TESTED]: {test_key}")
 
@@ -201,6 +262,7 @@ def main():
             random_forest_in_prediction = random_forest_model.predict(in_domain_test_features)
             random_forest_in_metrics = evaluate_predictions(in_domain_test_labels, random_forest_in_prediction)
             #Compares true labels: in_domain_test_labels with prediction labels: random_forest_in_prediction.
+            to_percentage(random_forest_in_metrics)
 
             row = {}
             row["model"] = "Random_forest"
@@ -235,6 +297,7 @@ def main():
             rf_test_metrics = evaluate_predictions(
                 cross_domain_test_labels, rf_test_pred
             )
+            to_percentage(rf_test_metrics)
 
             row = {}
             row["model"] = "Random_forest"
@@ -253,15 +316,72 @@ def main():
             row["tp"] = rf_test_metrics["tp"]
             results_rows.append(row)
 
+            attack_labels_in_test_dataset = sorted(test_df["Label"].dropna().unique())
+
+            for attack_label in attack_labels_in_test_dataset:
+                if attack_label == "BENIGN":
+                    continue
+
+                per_attack_type_subset_dataframe = test_df[
+                    (test_df["Label"] == "BENIGN") |
+                    (test_df["Label"] == attack_label)
+                ].copy()
+
+                per_attack_type_true_labels = per_attack_type_subset_dataframe["Is_attack"]
+                per_attack_type_predictions = rf_test_pred[
+                    per_attack_type_subset_dataframe.index
+                ]
+                per_attack_type_metrics = evaluate_predictions(
+                    per_attack_type_true_labels,
+                    per_attack_type_predictions,
+                )
+                to_percentage(per_attack_type_metrics)
+
+                attack_type_row_count = len(
+                    per_attack_type_subset_dataframe[
+                        per_attack_type_subset_dataframe["Label"] == attack_label
+                    ]
+                )
+                benign_row_count = len(
+                    per_attack_type_subset_dataframe[
+                        per_attack_type_subset_dataframe["Label"] == "BENIGN"
+                    ]
+                )
+
+                row = {}
+                row["model"] = "Random_forest"
+                row["train_dataset"] = train_key
+                row["test_dataset"] = test_key
+                row["evaluation"] = "cross_domain_per_attack_type"
+                row["attack_type"] = attack_label
+                row["attack_rows"] = attack_type_row_count
+                row["benign_rows"] = benign_row_count
+                row["train_rows"] = len(training_features_split)
+                row["test_rows"] = len(per_attack_type_subset_dataframe)
+                row["accuracy"] = per_attack_type_metrics["accuracy"]
+                row["precision"] = per_attack_type_metrics["precision"]
+                row["recall"] = per_attack_type_metrics["recall"]
+                row["f1"] = per_attack_type_metrics["f1"]
+                row["tn"] = per_attack_type_metrics["tn"]
+                row["fp"] = per_attack_type_metrics["fp"]
+                row["fn"] = per_attack_type_metrics["fn"]
+                row["tp"] = per_attack_type_metrics["tp"]
+                per_attack_type_results_rows.append(row)
+
             print(f"[TRAINED]: {test_key}")
 
 
 # ----------------------------------------------------------------------------------------------------------------------
 
     results_df = pd.DataFrame(results_rows)
-    out_csv = RESULTS_DIR / "experiment_metrics.csv"
+    out_csv = RESULTS_DIR / "single-day-cross-day-experiment_metrics.csv"
     results_df.to_csv(out_csv, index=False)
     print(f"[SUCCESS] wrote: {out_csv}")
+
+    per_attack_type_results_df = pd.DataFrame(per_attack_type_results_rows)
+    per_attack_type_out_csv = RESULTS_DIR / "single-day-cross-day-per-attack-type_metrics.csv"
+    per_attack_type_results_df.to_csv(per_attack_type_out_csv, index=False)
+    print(f"[SUCCESS] wrote: {per_attack_type_out_csv}")
 
 
 if __name__ == "__main__":

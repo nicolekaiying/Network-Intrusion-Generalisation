@@ -5,13 +5,14 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
 from dataset_feature_alignment import PROCESSED_DIR, RESULTS_DIR, common_feature_columns, load_processed_csvs, reduced_feature_columns
-from single_day_cross_day_experiments import evaluate_predictions
+from single_day_cross_day_experiments import evaluate_predictions, to_percentage
 
 # THIS EXPERIMENT TRAINS THE MODEL ON MULTIPLE DAYS, THEN SEE HOW WELL IT GENERALISE TO AN UNSEEN DAY
 # IT TRIES TWO VERSIONS OF INPUT COLUMNS: ALL FEATURES & REDUCED FEATURES
 # TRAINS TWO MODELS USING LOGISTIC REGRESSION & RANDOM FOREST
 
-MAX_POOLED_TRAINING_ROWS = 20000
+MAX_POOLED_TRAINING_ROWS = 150000
+
 
 def undersample_majority_class(training_dataframe):
     benign_rows = training_dataframe[training_dataframe["Is_attack"] == 0]
@@ -22,11 +23,11 @@ def undersample_majority_class(training_dataframe):
     attack_row_count = len(attack_rows)
 
     if benign_row_count == 0 or attack_row_count == 0:
-    #Do nothing if one class is missing.
+        #Do nothing if one class is missing.
         return training_dataframe
 
     if benign_row_count > attack_row_count:
-    #This checks and doesn't assume if a class is majority or minority.
+        #This checks and doesn't assume if a class is majority or minority.
         larger_class_rows = benign_rows
         smaller_class_rows = attack_rows
     else:
@@ -34,27 +35,26 @@ def undersample_majority_class(training_dataframe):
         smaller_class_rows = benign_rows
 
     sampled_larger_class_rows = larger_class_rows.sample(
-    #Take only as many rows as there are minority rows.
+        #Take only as many rows as there are minority rows.
         n=len(smaller_class_rows),
         random_state=42
     )
 
     balanced_training_dataframe = pd.concat(
-    #Creates a balanced dataframe by stacking sampled_larger_class_rows and smaller_class_rows.
+        #Creates a balanced dataframe by stacking sampled_larger_class_rows and smaller_class_rows.
         [sampled_larger_class_rows, smaller_class_rows],
         axis=0,
         #Stacks row vertically.
         ignore_index=True)
 
     balanced_training_dataframe = balanced_training_dataframe.sample(
-    #Shuffles the rows.
+        #Shuffles the rows.
         frac=1,
         random_state=42
     ).reset_index(drop=True)
     #Fix the row numbers.
 
     return balanced_training_dataframe
-
 
 def split_train_test_by_day(dataframes_by_day, dataset_keys_by_day, day_names, held_out_day):
     training_dataframes = []
@@ -147,22 +147,21 @@ def main():
         else:
             sampled_training_dataframe = combined_training_dataframe
 
-        undersampled_training_dataframe = undersample_majority_class(sampled_training_dataframe)
-
-        if len(undersampled_training_dataframe) != len(sampled_training_dataframe):
+        training_dataframe = undersample_majority_class(sampled_training_dataframe)
+        if len(training_dataframe) != len(sampled_training_dataframe):
             print(
                 f"[UNDERSAMPLING] Held-out day {held_out_day}: "
                 f"reduced training rows from {len(sampled_training_dataframe)} "
-                f"to {len(undersampled_training_dataframe)}"
+                f"to {len(training_dataframe)}"
             )
         else:
             print(
                 f"[UNDERSAMPLING] Held-out day {held_out_day}: "
-                f"training rows stayed at {len(undersampled_training_dataframe)}"
+                f"training rows stayed at {len(training_dataframe)}"
             )
 
-        undersampled_training_labels = undersampled_training_dataframe["Is_attack"]
-        unique_training_classes = undersampled_training_labels.unique()
+        training_labels = training_dataframe["Is_attack"]
+        unique_training_classes = training_labels.unique()
         if len(unique_training_classes) < 2:
             print(f"[SKIP] pooled training data for held-out day {held_out_day} only has one class.")
             continue
@@ -178,41 +177,32 @@ def main():
 
         print(
             f"[TRAINING ROWS] Held-out day {held_out_day}: "
-            f"using {len(undersampled_training_dataframe)} training rows"
+            f"using {len(training_dataframe)} training rows"
         )
 
         held_out_test_labels = combined_held_out_test_dataframe["Is_attack"]
 
         for feature_set_name, chosen_feature_columns in feature_sets:
-            undersampled_training_features = undersampled_training_dataframe[chosen_feature_columns]
+            training_features = training_dataframe[chosen_feature_columns]
             held_out_test_features = combined_held_out_test_dataframe[chosen_feature_columns]
 
-            print(
-                f"[FEATURE SET] Held-out day {held_out_day}: "
-                f"{feature_set_name} ({len(chosen_feature_columns)} columns)"
-            )
-
-            print(f"[LOGISTIC REGRESSION] Fitting model for held-out day: {held_out_day}")
+            print(f"[FEATURE SET] {feature_set_name} ({len(chosen_feature_columns)} cols) for {held_out_day}")
             logistic_regression_scaler = StandardScaler()
-            logistic_regression_scaler.fit(undersampled_training_features)
-            print(f"[LOGISTIC REGRESSION] Finished scaler fit for held-out day: {held_out_day}")
-
-            undersampled_training_features_scaled = logistic_regression_scaler.transform(undersampled_training_features)
+            logistic_regression_scaler.fit(training_features)
+            training_features_scaled = logistic_regression_scaler.transform(training_features)
             held_out_test_features_scaled = logistic_regression_scaler.transform(held_out_test_features)
-            print(f"[LOGISTIC REGRESSION] Finished feature scaling for held-out day: {held_out_day}")
 
             logistic_regression_model = LogisticRegression(
-                max_iter=100,
+                max_iter=300,
                 class_weight="balanced",
                 solver="saga",
-                verbose=1,
+                verbose=0,
             )
-            logistic_regression_model.fit(undersampled_training_features_scaled, undersampled_training_labels)
-            print(f"[LOGISTIC REGRESSION] Finished model fit for held-out day: {held_out_day}")
+            logistic_regression_model.fit(training_features_scaled, training_labels)
 
             logistic_regression_predictions = logistic_regression_model.predict(held_out_test_features_scaled)
             logistic_regression_metrics = evaluate_predictions(held_out_test_labels, logistic_regression_predictions)
-            print(f"[LOGISTIC REGRESSION] Finished evaluation for held-out day: {held_out_day}")
+            to_percentage(logistic_regression_metrics)
 
             row = {}
             row["experiment"] = "multi_day_held_out_day"
@@ -224,8 +214,8 @@ def main():
             row["training_dataset_files"] = training_dataset_files_text
             row["test_dataset_files"] = held_out_test_dataset_files_text
             row["full_train_rows"] = full_pooled_training_row_count
-            row["sampled_train_rows_before_undersampling"] = len(sampled_training_dataframe)
-            row["train_rows"] = len(undersampled_training_features)
+            row["sampled_train_rows"] = len(sampled_training_dataframe)
+            row["train_rows"] = len(training_features)
             row["test_rows"] = len(held_out_test_features)
             row["accuracy"] = logistic_regression_metrics["accuracy"]
             row["precision"] = logistic_regression_metrics["precision"]
@@ -237,19 +227,17 @@ def main():
             row["tp"] = logistic_regression_metrics["tp"]
             results_rows.append(row)
 
-            print(f"[RANDOM FOREST] fitting model for held-out day {held_out_day}")
             random_forest_model = RandomForestClassifier(
                 n_estimators=100,
                 class_weight="balanced",
                 random_state=42,
                 n_jobs=-1,
             )
-            random_forest_model.fit(undersampled_training_features, undersampled_training_labels)
-            print(f"[RANDOM FOREST] Finished model fit for held-out day: {held_out_day}")
+            random_forest_model.fit(training_features, training_labels)
 
             random_forest_predictions = random_forest_model.predict(held_out_test_features)
             random_forest_metrics = evaluate_predictions(held_out_test_labels, random_forest_predictions)
-            print(f"[RANDOM FOREST] Finished evaluation for held-out day: {held_out_day}")
+            to_percentage(random_forest_metrics)
 
             row = {}
             row["experiment"] = "multi_day_held_out_day"
@@ -261,8 +249,8 @@ def main():
             row["training_dataset_files"] = training_dataset_files_text
             row["test_dataset_files"] = held_out_test_dataset_files_text
             row["full_train_rows"] = full_pooled_training_row_count
-            row["sampled_train_rows_before_undersampling"] = len(sampled_training_dataframe)
-            row["train_rows"] = len(undersampled_training_features)
+            row["sampled_train_rows"] = len(sampled_training_dataframe)
+            row["train_rows"] = len(training_features)
             row["test_rows"] = len(held_out_test_features)
             row["accuracy"] = random_forest_metrics["accuracy"]
             row["precision"] = random_forest_metrics["precision"]
