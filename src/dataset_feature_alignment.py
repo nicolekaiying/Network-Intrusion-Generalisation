@@ -7,31 +7,34 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
 RESULTS_DIR = PROJECT_ROOT / "results"
 
-def load_processed_csvs(csv):
-#Loads all processed CSVs from "data" / "processed"
+NON_FEATURE_COLUMNS = {"Label", "Is_attack"}
+
+
+def load_processed_csvs(processed_dir):
+    # Load all processed CSVs from data/processed.
     datasets = {}
-    #Creates a dataset dictionary.
-    csv_files = sorted(csv.glob("*.csv"))
-    #Load and sort all files ending with .csv in alphabetical order.
+    csv_files = sorted(processed_dir.glob("*.csv"))
+    # Load and sort all files ending with .csv in alphabetical order.
+
     if len(csv_files) == 0:
-    #If no files, raise an error.
-        raise FileNotFoundError(f"[ERROR] No processed CSV files found in: {csv}")
+        # If no files are found, raise an error.
+        raise FileNotFoundError(f"[ERROR] No processed CSV files found in: {processed_dir}")
 
     for csv_path in csv_files:
         dataframe = pd.read_csv(csv_path)
         if "Is_attack" not in dataframe.columns:
-        #IF column "Is_attack" does not exist within df then skip to next file.
+            # Skip files that are not part of the processed experiment pipeline.
             continue
 
         dataset_key = csv_path.stem
         datasets[dataset_key] = dataframe
-        #Creates a key-value pair with the key being the file name & the value being the dataframe.
+        # Create a key-value pair with the filename stem as the dataset key.
 
     return datasets
 
 
 def common_feature_columns(datasets):
-#Group common features together.
+    # Find the feature columns shared across every processed dataset.
     dataset_keys = list(datasets.keys())
     if len(dataset_keys) == 0:
         return []
@@ -40,43 +43,60 @@ def common_feature_columns(datasets):
     first_df = datasets[first_dataset_key]
 
     common_features = []
-    for col in first_df.columns:
-        if col != "Label" and col != "Is_attack":
-            common_features.append(col)
-            #Add all columns of first dataframe to common_features except for "Label" and "Is_Attack" columns.
+    for column_name in first_df.columns:
+        if column_name not in NON_FEATURE_COLUMNS:
+            common_features.append(column_name)
+            # Start with all candidate feature columns from the first dataset.
 
     for dataset_key in dataset_keys[1:]:
-    #Starting from the second dataset key.
+        # Starting from the second dataset, keep only columns seen everywhere.
         dataframe = datasets[dataset_key]
 
         kept_features = []
         for feature in common_features:
             if feature in dataframe.columns:
                 kept_features.append(feature)
-                #If the same column already exists in the next dataframe, then add that to kept_features.
+                # If the feature also exists in this dataset, keep it.
 
         common_features = kept_features
 
-    common_features = sorted(common_features)
-    return common_features
+    return sorted(common_features)
 
 
-def reduced_feature_columns(all_feature_columns):
-#Function to remove all constant feature columns.
-    columns_to_remove = [
-        "Fwd Header Length.1",
-        "Bwd Avg Bulk Rate",
-        "Bwd Avg Bytes/Bulk",
-        "Bwd Avg Packets/Bulk",
-        "Bwd PSH Flags",
-        "Bwd URG Flags",
-        "Fwd Avg Bulk Rate",
-        "Fwd Avg Bytes/Bulk",
-        "Fwd Avg Packets/Bulk",
-    ]
+def constant_feature_columns(datasets, all_feature_columns):
+    # Find shared features that never change value within any processed dataset.
+    if len(datasets) == 0 or len(all_feature_columns) == 0:
+        return []
+
+    constant_columns = None
+
+    for dataframe in datasets.values():
+        feature_frame = dataframe[all_feature_columns]
+        unique_counts = feature_frame.nunique(dropna=False)
+        dataset_constant_columns = set(unique_counts[unique_counts <= 1].index)
+
+        if constant_columns is None:
+            constant_columns = dataset_constant_columns
+        else:
+            constant_columns = constant_columns.intersection(dataset_constant_columns)
+
+        if len(constant_columns) == 0:
+            return []
+
+    return sorted(constant_columns)
+
+
+def reduced_feature_columns(all_feature_columns, datasets=None):
+    # Remove shared feature columns that are constant across every dataset.
+    if datasets is None:
+        raise ValueError(
+            "datasets is required so constant feature columns can be detected "
+            "from the processed data."
+        )
+
+    columns_to_remove = set(constant_feature_columns(datasets, all_feature_columns))
 
     reduced_columns = []
-
     for column_name in all_feature_columns:
         if column_name not in columns_to_remove:
             reduced_columns.append(column_name)

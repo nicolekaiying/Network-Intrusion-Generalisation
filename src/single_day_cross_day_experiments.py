@@ -1,40 +1,16 @@
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score, confusion_matrix, f1_score, precision_score, recall_score
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
 from dataset_feature_alignment import PROCESSED_DIR, RESULTS_DIR, common_feature_columns, load_processed_csvs
-
-
-def evaluate_predictions(true_labels, predicted_labels):
-    cm = confusion_matrix(true_labels, predicted_labels, labels=[0, 1])
-    tn = int(cm[0, 0]) #Benign correctly predicted as Benign.
-    fp = int(cm[0, 1]) #Benign incorrectly predicted as Attack.
-    fn = int(cm[1, 0]) #Attack incorrectly predicted as Benign.
-    tp = int(cm[1, 1]) #Attack correctly predicted as Attack.
-
-    metrics = {}
-    # Overall correctness.
-    metrics["accuracy"] = accuracy_score(true_labels, predicted_labels)
-    #When I predicted Attack, how often is that True?
-    metrics["precision"] = precision_score(true_labels, predicted_labels, zero_division=0)
-    #Of all Attacks, how many did I catch?
-    metrics["recall"] = recall_score(true_labels, predicted_labels, zero_division=0)
-    #Balance between precision and recall.
-    metrics["f1"] = f1_score(true_labels, predicted_labels, zero_division=0)
-    metrics["tn"] = tn
-    metrics["fp"] = fp
-    metrics["fn"] = fn
-    metrics["tp"] = tp
-    return metrics
-
-
-def to_percentage(metrics_dict):
-    for key in ("accuracy", "precision", "recall", "f1"):
-        if key in metrics_dict:
-            metrics_dict[key] = round(metrics_dict[key] * 100, 4)
+from experiment_helpers import (
+    append_per_attack_type_rows,
+    build_metrics_row,
+    evaluate_predictions,
+    to_percentage,
+)
 
 
 def main():
@@ -132,21 +108,15 @@ def main():
             #Compare real labels: in_domain_test_labels with predicted labels: logistic_regression_in_prediction.
             to_percentage(logistic_regression_in_metrics)
 
-            row = {}
-            row["model"] = "Logistic Regression"
-            row["train_dataset"] = train_key
-            row["test_dataset"] = train_key
-            row["evaluation"] = "in_domain"
-            row["train_rows"] = len(training_features_split)
-            row["test_rows"] = len(in_domain_test_features)
-            row["accuracy"] = logistic_regression_in_metrics["accuracy"]
-            row["precision"] = logistic_regression_in_metrics["precision"]
-            row["recall"] = logistic_regression_in_metrics["recall"]
-            row["f1"] = logistic_regression_in_metrics["f1"]
-            row["tn"] = logistic_regression_in_metrics["tn"]
-            row["fp"] = logistic_regression_in_metrics["fp"]
-            row["fn"] = logistic_regression_in_metrics["fn"]
-            row["tp"] = logistic_regression_in_metrics["tp"]
+            row = build_metrics_row(
+                model_name="logistic_regression",
+                train_dataset=train_key,
+                test_dataset=train_key,
+                evaluation_name="in_domain",
+                train_rows=len(training_features_split),
+                test_rows=len(in_domain_test_features),
+                metrics=logistic_regression_in_metrics,
+            )
             results_rows.append(row)
 
             print(f"[LOGISTIC REGRESSION TRAINED]: {train_key}")
@@ -170,74 +140,26 @@ def main():
             #Compare real labels: cross_domain_test_labels with predicted labels: logistic_regression_test_predict.
             to_percentage(lr_test_metrics)
 
-            row = {}
-            row["model"] = "Logistic_regression"
-            row["train_dataset"] = train_key
-            row["test_dataset"] = test_key
-            row["evaluation"] = "cross_domain"
-            row["train_rows"] = len(training_features_split)
-            row["test_rows"] = len(cross_domain_test_features)
-            row["accuracy"] = lr_test_metrics["accuracy"]
-            row["precision"] = lr_test_metrics["precision"]
-            row["recall"] = lr_test_metrics["recall"]
-            row["f1"] = lr_test_metrics["f1"]
-            row["tn"] = lr_test_metrics["tn"]
-            row["fp"] = lr_test_metrics["fp"]
-            row["fn"] = lr_test_metrics["fn"]
-            row["tp"] = lr_test_metrics["tp"]
+            row = build_metrics_row(
+                model_name="logistic_regression",
+                train_dataset=train_key,
+                test_dataset=test_key,
+                evaluation_name="cross_domain",
+                train_rows=len(training_features_split),
+                test_rows=len(cross_domain_test_features),
+                metrics=lr_test_metrics,
+            )
             results_rows.append(row)
 
-            attack_labels_in_test_dataset = sorted(test_df["Label"].dropna().unique())
-
-            for attack_label in attack_labels_in_test_dataset:
-                if attack_label == "BENIGN":
-                    continue
-
-                per_attack_type_subset_dataframe = test_df[
-                    (test_df["Label"] == "BENIGN") |
-                    (test_df["Label"] == attack_label)
-                ].copy()
-
-                per_attack_type_true_labels = per_attack_type_subset_dataframe["Is_attack"]
-                per_attack_type_predictions = logistic_regression_test_predict[
-                    per_attack_type_subset_dataframe.index
-                ]
-                per_attack_type_metrics = evaluate_predictions(
-                    per_attack_type_true_labels,
-                    per_attack_type_predictions,
-                )
-                to_percentage(per_attack_type_metrics)
-
-                attack_type_row_count = len(
-                    per_attack_type_subset_dataframe[
-                        per_attack_type_subset_dataframe["Label"] == attack_label
-                    ]
-                )
-                benign_row_count = len(
-                    per_attack_type_subset_dataframe[
-                        per_attack_type_subset_dataframe["Label"] == "BENIGN"
-                    ]
-                )
-
-                row = {}
-                row["model"] = "Logistic_regression"
-                row["train_dataset"] = train_key
-                row["test_dataset"] = test_key
-                row["evaluation"] = "cross_domain_per_attack_type"
-                row["attack_type"] = attack_label
-                row["attack_rows"] = attack_type_row_count
-                row["benign_rows"] = benign_row_count
-                row["train_rows"] = len(training_features_split)
-                row["test_rows"] = len(per_attack_type_subset_dataframe)
-                row["accuracy"] = per_attack_type_metrics["accuracy"]
-                row["precision"] = per_attack_type_metrics["precision"]
-                row["recall"] = per_attack_type_metrics["recall"]
-                row["f1"] = per_attack_type_metrics["f1"]
-                row["tn"] = per_attack_type_metrics["tn"]
-                row["fp"] = per_attack_type_metrics["fp"]
-                row["fn"] = per_attack_type_metrics["fn"]
-                row["tp"] = per_attack_type_metrics["tp"]
-                per_attack_type_results_rows.append(row)
+            append_per_attack_type_rows(
+                results_rows=per_attack_type_results_rows,
+                model_name="logistic_regression",
+                train_dataset=train_key,
+                test_dataset=test_key,
+                train_rows=len(training_features_split),
+                test_dataframe=test_df,
+                predictions=logistic_regression_test_predict,
+            )
 
             print(f"[TESTED]: {test_key}")
 
@@ -249,7 +171,7 @@ def main():
 
 
         random_forest_model = RandomForestClassifier(
-            n_estimators=200,
+            n_estimators=100,
             class_weight="balanced",
             random_state=42,
             n_jobs=-1,
@@ -264,21 +186,15 @@ def main():
             #Compares true labels: in_domain_test_labels with prediction labels: random_forest_in_prediction.
             to_percentage(random_forest_in_metrics)
 
-            row = {}
-            row["model"] = "Random_forest"
-            row["train_dataset"] = train_key
-            row["test_dataset"] = train_key
-            row["evaluation"] = "in_domain"
-            row["train_rows"] = len(training_features_split)
-            row["test_rows"] = len(in_domain_test_features)
-            row["accuracy"] = random_forest_in_metrics["accuracy"]
-            row["precision"] = random_forest_in_metrics["precision"]
-            row["recall"] = random_forest_in_metrics["recall"]
-            row["f1"] = random_forest_in_metrics["f1"]
-            row["tn"] = random_forest_in_metrics["tn"]
-            row["fp"] = random_forest_in_metrics["fp"]
-            row["fn"] = random_forest_in_metrics["fn"]
-            row["tp"] = random_forest_in_metrics["tp"]
+            row = build_metrics_row(
+                model_name="random_forest",
+                train_dataset=train_key,
+                test_dataset=train_key,
+                evaluation_name="in_domain",
+                train_rows=len(training_features_split),
+                test_rows=len(in_domain_test_features),
+                metrics=random_forest_in_metrics,
+            )
             results_rows.append(row)
 
             print(f"[RANDOM FOREST TRAINED]: {train_key}")
@@ -299,74 +215,26 @@ def main():
             )
             to_percentage(rf_test_metrics)
 
-            row = {}
-            row["model"] = "Random_forest"
-            row["train_dataset"] = train_key
-            row["test_dataset"] = test_key
-            row["evaluation"] = "cross_domain"
-            row["train_rows"] = len(training_features_split)
-            row["test_rows"] = len(cross_domain_test_features)
-            row["accuracy"] = rf_test_metrics["accuracy"]
-            row["precision"] = rf_test_metrics["precision"]
-            row["recall"] = rf_test_metrics["recall"]
-            row["f1"] = rf_test_metrics["f1"]
-            row["tn"] = rf_test_metrics["tn"]
-            row["fp"] = rf_test_metrics["fp"]
-            row["fn"] = rf_test_metrics["fn"]
-            row["tp"] = rf_test_metrics["tp"]
+            row = build_metrics_row(
+                model_name="random_forest",
+                train_dataset=train_key,
+                test_dataset=test_key,
+                evaluation_name="cross_domain",
+                train_rows=len(training_features_split),
+                test_rows=len(cross_domain_test_features),
+                metrics=rf_test_metrics,
+            )
             results_rows.append(row)
 
-            attack_labels_in_test_dataset = sorted(test_df["Label"].dropna().unique())
-
-            for attack_label in attack_labels_in_test_dataset:
-                if attack_label == "BENIGN":
-                    continue
-
-                per_attack_type_subset_dataframe = test_df[
-                    (test_df["Label"] == "BENIGN") |
-                    (test_df["Label"] == attack_label)
-                ].copy()
-
-                per_attack_type_true_labels = per_attack_type_subset_dataframe["Is_attack"]
-                per_attack_type_predictions = rf_test_pred[
-                    per_attack_type_subset_dataframe.index
-                ]
-                per_attack_type_metrics = evaluate_predictions(
-                    per_attack_type_true_labels,
-                    per_attack_type_predictions,
-                )
-                to_percentage(per_attack_type_metrics)
-
-                attack_type_row_count = len(
-                    per_attack_type_subset_dataframe[
-                        per_attack_type_subset_dataframe["Label"] == attack_label
-                    ]
-                )
-                benign_row_count = len(
-                    per_attack_type_subset_dataframe[
-                        per_attack_type_subset_dataframe["Label"] == "BENIGN"
-                    ]
-                )
-
-                row = {}
-                row["model"] = "Random_forest"
-                row["train_dataset"] = train_key
-                row["test_dataset"] = test_key
-                row["evaluation"] = "cross_domain_per_attack_type"
-                row["attack_type"] = attack_label
-                row["attack_rows"] = attack_type_row_count
-                row["benign_rows"] = benign_row_count
-                row["train_rows"] = len(training_features_split)
-                row["test_rows"] = len(per_attack_type_subset_dataframe)
-                row["accuracy"] = per_attack_type_metrics["accuracy"]
-                row["precision"] = per_attack_type_metrics["precision"]
-                row["recall"] = per_attack_type_metrics["recall"]
-                row["f1"] = per_attack_type_metrics["f1"]
-                row["tn"] = per_attack_type_metrics["tn"]
-                row["fp"] = per_attack_type_metrics["fp"]
-                row["fn"] = per_attack_type_metrics["fn"]
-                row["tp"] = per_attack_type_metrics["tp"]
-                per_attack_type_results_rows.append(row)
+            append_per_attack_type_rows(
+                results_rows=per_attack_type_results_rows,
+                model_name="random_forest",
+                train_dataset=train_key,
+                test_dataset=test_key,
+                train_rows=len(training_features_split),
+                test_dataframe=test_df,
+                predictions=rf_test_pred,
+            )
 
             print(f"[TRAINED]: {test_key}")
 
