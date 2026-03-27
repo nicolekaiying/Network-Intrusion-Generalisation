@@ -1,4 +1,5 @@
 import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
@@ -11,24 +12,107 @@ from dataset_feature_alignment import (
     reduced_feature_columns,
 )
 from experiment_helpers import (
+    MAX_POOLED_TRAINING_ROWS,
+    RANDOM_STATE,
     choose_best_threshold,
     evaluate_predictions,
+    group_datasets_by_day,
     predictions_from_threshold,
-    to_percentage,
-)
-from multi_day_experiments import (
-    MAX_POOLED_TRAINING_ROWS,
+    sample_training_dataframe,
     split_train_test_by_day,
+    to_percentage,
     undersample_majority_class,
 )
 
-# THIS EXPERIMENT USES THE SAME MULTI-DAY HELD-OUT-DAY SETUP
-# BUT TUNES THE LOGISTIC REGRESSION THRESHOLD ON A VALIDATION SPLIT
-# INSTEAD OF ALWAYS USING THE DEFAULT 0.5 CUTOFF
+# TRAINS ON THE POOLED NON-TEST DAYS, THEN USES A VALIDATION SPLIT TO CHOOSE A BETTER DECISION THRESHOLD.
+# REPORTS VALIDATION AND TEST RESULTS TO SHOW WHETHER THRESHOLD TUNING HELPS ON THE HELD-OUT DAY.
 
 VALIDATION_SIZE = 0.2
-THRESHOLD_VALUES = [0.3, 0.4, 0.5, 0.6, 0.7]
+THRESHOLD_VALUES = [round(value / 100, 2) for value in range(1, 100)]
 MINIMUM_PRECISION = 0.70
+RANDOM_FOREST_MAX_FEATURES_OPTIONS = ["sqrt", "log2", 0.2]
+RANDOM_FOREST_ESTIMATORS = 100
+RANDOM_FOREST_MAX_DEPTH = 12
+RANDOM_FOREST_MIN_SAMPLES_SPLIT = 6
+RANDOM_FOREST_MIN_SAMPLES_LEAF = 4
+
+
+def build_threshold_result_row(
+    model_name,
+    feature_set_name,
+    held_out_day,
+    train_rows,
+    validation_rows,
+    test_rows,
+    chosen_threshold,
+    validation_metrics,
+    held_out_metrics,
+    tuned_max_features=None,
+):
+    row = {}
+    row["Experiment"] = "Multi-Day-Threshold-Tuning"
+    row["Model"] = model_name
+    row["Feature-Set"] = feature_set_name
+    row["Test-Day"] = held_out_day
+    row["Train-Rows"] = train_rows
+    row["Validation-Rows"] = validation_rows
+    row["Test-Rows"] = test_rows
+    row["Chosen-Threshold"] = chosen_threshold
+    row["Tuned-Max-Features"] = tuned_max_features
+    row["Validation-Precision"] = validation_metrics["precision"]
+    row["Validation-Recall"] = validation_metrics["recall"]
+    row["Validation-F1"] = validation_metrics["f1"]
+    row["Accuracy"] = held_out_metrics["accuracy"]
+    row["Precision"] = held_out_metrics["precision"]
+    row["Recall"] = held_out_metrics["recall"]
+    row["F1"] = held_out_metrics["f1"]
+    return row
+
+
+def choose_best_random_forest_setup(
+    training_features,
+    training_labels,
+    validation_features,
+    validation_labels,
+):
+    best_result = None
+
+    for max_features in RANDOM_FOREST_MAX_FEATURES_OPTIONS:
+        candidate_model = RandomForestClassifier(
+            n_estimators=RANDOM_FOREST_ESTIMATORS,
+            class_weight="balanced_subsample",
+            random_state=RANDOM_STATE,
+            n_jobs=-1,
+            max_depth=RANDOM_FOREST_MAX_DEPTH,
+            min_samples_split=RANDOM_FOREST_MIN_SAMPLES_SPLIT,
+            min_samples_leaf=RANDOM_FOREST_MIN_SAMPLES_LEAF,
+            max_features=max_features,
+        )
+        candidate_model.fit(training_features, training_labels)
+
+        validation_probabilities = candidate_model.predict_proba(validation_features)[:, 1]
+        chosen_threshold, validation_metrics, _ = choose_best_threshold(
+            validation_labels,
+            validation_probabilities,
+            THRESHOLD_VALUES,
+            MINIMUM_PRECISION,
+        )
+
+        candidate_score = (
+            validation_metrics["precision"] >= MINIMUM_PRECISION,
+            validation_metrics["recall"],
+            validation_metrics["f1"],
+        )
+
+        if best_result is None or candidate_score > best_result["score"]:
+            best_result = {
+                "max_features": max_features,
+                "chosen_threshold": chosen_threshold,
+                "validation_metrics": validation_metrics,
+                "score": candidate_score,
+            }
+
+    return best_result
 
 
 def main():
@@ -39,35 +123,23 @@ def main():
     reduced_columns = reduced_feature_columns(all_feature_columns, datasets=datasets)
 
     feature_sets = [
-        ("all_features", all_feature_columns),
-        ("reduced_features", reduced_columns),
+        ("All-Features", all_feature_columns),
+        ("Reduced-Features", reduced_columns),
     ]
 
-    dataframes_by_day = {}
-    dataset_keys_by_day = {}
-
-    for dataset_key, dataframe in datasets.items():
-        dataset_name_parts = dataset_key.split("-")
-        day_name = dataset_name_parts[0]
-
-        if day_name not in dataframes_by_day:
-            dataframes_by_day[day_name] = []
-            dataset_keys_by_day[day_name] = []
-
-        dataframes_by_day[day_name].append(dataframe)
-        dataset_keys_by_day[day_name].append(dataset_key)
-
+    dataframes_by_day, dataset_keys_by_day = group_datasets_by_day(datasets)
     day_names = sorted(dataframes_by_day.keys())
     results_rows = []
 
     for held_out_day in day_names:
         print(f"[HELD OUT DAY]: {held_out_day}")
 
+        training_days = [day_name for day_name in day_names if day_name != held_out_day]
         split_result = split_train_test_by_day(
             dataframes_by_day,
             dataset_keys_by_day,
-            day_names,
-            held_out_day,
+            train_days=training_days,
+            test_days=[held_out_day],
         )
         if split_result is None:
             print(f"[SKIP] missing train/test data when holding out {held_out_day}.")
@@ -76,40 +148,35 @@ def main():
         (
             combined_training_dataframe,
             combined_held_out_test_dataframe,
-            training_dataset_keys,
-            held_out_test_dataset_keys,
+            _training_dataset_keys,
+            _held_out_test_dataset_keys,
         ) = split_result
 
-        full_pooled_training_row_count = len(combined_training_dataframe)
+        sampled_training_dataframe, _ = sample_training_dataframe(
+            combined_training_dataframe,
+            max_rows=MAX_POOLED_TRAINING_ROWS,
+            sampling_name=f"pooled training rows for held-out day {held_out_day}",
+        )
 
-        if full_pooled_training_row_count > MAX_POOLED_TRAINING_ROWS:
+        try:
+            split_training_dataframe, validation_dataframe = train_test_split(
+                sampled_training_dataframe,
+                test_size=VALIDATION_SIZE,
+                random_state=RANDOM_STATE,
+                stratify=sampled_training_dataframe["Is_attack"],
+            )
+        except ValueError as exc:
             print(
-                f"[SAMPLING] Reducing pooled training rows for held-out day {held_out_day} "
-                f"from {full_pooled_training_row_count} to {MAX_POOLED_TRAINING_ROWS}"
+                f"[SKIP] could not create validation split for {held_out_day}: {exc}"
             )
+            continue
 
-            sampled_split_result = train_test_split(
-                combined_training_dataframe,
-                train_size=MAX_POOLED_TRAINING_ROWS,
-                random_state=42,
-                stratify=combined_training_dataframe["Is_attack"],
-            )
-
-            sampled_training_dataframe = sampled_split_result[0]
-        else:
-            sampled_training_dataframe = combined_training_dataframe
-
-        training_dataframe = undersample_majority_class(sampled_training_dataframe)
-        if len(training_dataframe) != len(sampled_training_dataframe):
+        training_dataframe = undersample_majority_class(split_training_dataframe)
+        if len(training_dataframe) != len(split_training_dataframe):
             print(
                 f"[UNDERSAMPLING] Held-out day {held_out_day}: "
-                f"reduced training rows from {len(sampled_training_dataframe)} "
+                f"reduced threshold-training rows from {len(split_training_dataframe)} "
                 f"to {len(training_dataframe)}"
-            )
-        else:
-            print(
-                f"[UNDERSAMPLING] Held-out day {held_out_day}: "
-                f"training rows stayed at {len(training_dataframe)}"
             )
 
         training_labels = training_dataframe["Is_attack"]
@@ -120,100 +187,44 @@ def main():
             )
             continue
 
-        training_days = []
-        for day_name in day_names:
-            if day_name != held_out_day:
-                training_days.append(day_name)
-
-        training_days_text = ", ".join(training_days)
-        training_dataset_files_text = ", ".join(sorted(training_dataset_keys))
-        held_out_test_dataset_files_text = ", ".join(sorted(held_out_test_dataset_keys))
+        validation_labels = validation_dataframe["Is_attack"]
         held_out_test_labels = combined_held_out_test_dataframe["Is_attack"]
 
         for feature_set_name, chosen_feature_columns in feature_sets:
             training_features = training_dataframe[chosen_feature_columns]
+            validation_features = validation_dataframe[chosen_feature_columns]
             held_out_test_features = combined_held_out_test_dataframe[
                 chosen_feature_columns
             ]
 
-            print(
-                f"[FEATURE SET] {feature_set_name} ({len(chosen_feature_columns)} cols) "
-                f"for {held_out_day}"
-            )
-
-            try:
-                validation_split_result = train_test_split(
-                    training_features,
-                    training_labels,
-                    test_size=VALIDATION_SIZE,
-                    random_state=42,
-                    stratify=training_labels,
-                )
-            except ValueError as exc:
-                print(
-                    f"[SKIP] could not create validation split for {held_out_day}, "
-                    f"{feature_set_name}: {exc}"
-                )
-                continue
-
-            threshold_training_features = validation_split_result[0]
-            validation_features = validation_split_result[1]
-            threshold_training_labels = validation_split_result[2]
-            validation_labels = validation_split_result[3]
-
             threshold_scaler = StandardScaler()
-            threshold_scaler.fit(threshold_training_features)
+            threshold_scaler.fit(training_features)
 
-            threshold_training_features_scaled = threshold_scaler.transform(
-                threshold_training_features
-            )
-            validation_features_scaled = threshold_scaler.transform(
-                validation_features
+            training_features_scaled = threshold_scaler.transform(training_features)
+            validation_features_scaled = threshold_scaler.transform(validation_features)
+            held_out_test_features_scaled = threshold_scaler.transform(
+                held_out_test_features
             )
 
             threshold_model = LogisticRegression(
                 max_iter=300,
                 class_weight="balanced",
-                solver="saga",
-                verbose=0,
+                solver="lbfgs",
             )
-            threshold_model.fit(
-                threshold_training_features_scaled,
-                threshold_training_labels,
-            )
+            threshold_model.fit(training_features_scaled, training_labels)
 
             validation_probabilities = threshold_model.predict_proba(
                 validation_features_scaled
             )[:, 1]
 
-            chosen_threshold, validation_metrics, threshold_selection_mode = (
-                choose_best_threshold(
-                    validation_labels,
-                    validation_probabilities,
-                    THRESHOLD_VALUES,
-                    MINIMUM_PRECISION,
-                )
+            chosen_threshold, validation_metrics, _ = choose_best_threshold(
+                validation_labels,
+                validation_probabilities,
+                THRESHOLD_VALUES,
+                MINIMUM_PRECISION,
             )
 
-            full_training_scaler = StandardScaler()
-            full_training_scaler.fit(training_features)
-
-            full_training_features_scaled = full_training_scaler.transform(
-                training_features
-            )
-            held_out_test_features_scaled = full_training_scaler.transform(
-                held_out_test_features
-            )
-
-            final_model = LogisticRegression(
-                max_iter=300,
-                class_weight="balanced",
-                solver="saga",
-                verbose=0,
-            )
-            final_model.fit(full_training_features_scaled, training_labels)
-
-            held_out_attack_probabilities = final_model.predict_proba(
+            held_out_attack_probabilities = threshold_model.predict_proba(
                 held_out_test_features_scaled
             )[:, 1]
             held_out_predictions = predictions_from_threshold(
@@ -230,41 +241,77 @@ def main():
             to_percentage(validation_metrics_percent)
             to_percentage(held_out_metrics_percent)
 
-            row = {}
-            row["experiment"] = "multi_day_threshold_tuning"
-            row["model"] = "logistic_regression"
-            row["feature_set"] = feature_set_name
-            row["feature_count"] = len(chosen_feature_columns)
-            row["held_out_day"] = held_out_day
-            row["training_days"] = training_days_text
-            row["training_dataset_files"] = training_dataset_files_text
-            row["test_dataset_files"] = held_out_test_dataset_files_text
-            row["full_train_rows"] = full_pooled_training_row_count
-            row["sampled_train_rows"] = len(sampled_training_dataframe)
-            row["train_rows"] = len(training_features)
-            row["validation_rows"] = len(validation_features)
-            row["test_rows"] = len(held_out_test_features)
-            row["default_threshold"] = 0.5
-            row["chosen_threshold"] = chosen_threshold
-            row["minimum_precision_target"] = MINIMUM_PRECISION * 100
-            row["threshold_values"] = ", ".join(str(value) for value in THRESHOLD_VALUES)
-            row["threshold_selection_mode"] = threshold_selection_mode
-            row["validation_accuracy"] = validation_metrics_percent["accuracy"]
-            row["validation_precision"] = validation_metrics_percent["precision"]
-            row["validation_recall"] = validation_metrics_percent["recall"]
-            row["validation_f1"] = validation_metrics_percent["f1"]
-            row["accuracy"] = held_out_metrics_percent["accuracy"]
-            row["precision"] = held_out_metrics_percent["precision"]
-            row["recall"] = held_out_metrics_percent["recall"]
-            row["f1"] = held_out_metrics_percent["f1"]
-            row["tn"] = held_out_metrics_percent["tn"]
-            row["fp"] = held_out_metrics_percent["fp"]
-            row["fn"] = held_out_metrics_percent["fn"]
-            row["tp"] = held_out_metrics_percent["tp"]
-            results_rows.append(row)
+            results_rows.append(
+                build_threshold_result_row(
+                    model_name="Logistic-Regression",
+                    feature_set_name=feature_set_name,
+                    held_out_day=held_out_day,
+                    train_rows=len(training_features),
+                    validation_rows=len(validation_features),
+                    test_rows=len(held_out_test_features),
+                    chosen_threshold=chosen_threshold,
+                    validation_metrics=validation_metrics_percent,
+                    held_out_metrics=held_out_metrics_percent,
+                )
+            )
+
+            random_forest_selection = choose_best_random_forest_setup(
+                training_features,
+                training_labels,
+                validation_features,
+                validation_labels,
+            )
+
+            random_forest_model = RandomForestClassifier(
+                n_estimators=RANDOM_FOREST_ESTIMATORS,
+                class_weight="balanced_subsample",
+                random_state=RANDOM_STATE,
+                n_jobs=-1,
+                max_depth=RANDOM_FOREST_MAX_DEPTH,
+                min_samples_split=RANDOM_FOREST_MIN_SAMPLES_SPLIT,
+                min_samples_leaf=RANDOM_FOREST_MIN_SAMPLES_LEAF,
+                max_features=random_forest_selection["max_features"],
+            )
+            random_forest_model.fit(training_features, training_labels)
+
+            held_out_random_forest_probabilities = random_forest_model.predict_proba(
+                held_out_test_features
+            )[:, 1]
+            held_out_random_forest_predictions = predictions_from_threshold(
+                held_out_random_forest_probabilities,
+                random_forest_selection["chosen_threshold"],
+            )
+            held_out_random_forest_metrics = evaluate_predictions(
+                held_out_test_labels,
+                held_out_random_forest_predictions,
+            )
+
+            random_forest_validation_metrics_percent = dict(
+                random_forest_selection["validation_metrics"]
+            )
+            held_out_random_forest_metrics_percent = dict(
+                held_out_random_forest_metrics
+            )
+            to_percentage(random_forest_validation_metrics_percent)
+            to_percentage(held_out_random_forest_metrics_percent)
+
+            results_rows.append(
+                build_threshold_result_row(
+                    model_name="Random-Forest",
+                    feature_set_name=feature_set_name,
+                    held_out_day=held_out_day,
+                    train_rows=len(training_features),
+                    validation_rows=len(validation_features),
+                    test_rows=len(held_out_test_features),
+                    chosen_threshold=random_forest_selection["chosen_threshold"],
+                    validation_metrics=random_forest_validation_metrics_percent,
+                    held_out_metrics=held_out_random_forest_metrics_percent,
+                    tuned_max_features=random_forest_selection["max_features"],
+                )
+            )
 
     results_dataframe = pd.DataFrame(results_rows)
-    output_csv_path = RESULTS_DIR / "multi_day_threshold_tuning_metrics.csv"
+    output_csv_path = RESULTS_DIR / "multi-day-threshold-tuning_metrics.csv"
     results_dataframe.to_csv(output_csv_path, index=False)
     print(f"[SUCCESS] wrote: {output_csv_path}")
 
