@@ -3,8 +3,6 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-# An intrusion detection pipeline that detects malicious network traffic
-# and evaluates how well it generalises across different days/attack types.
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 RAW_DIR = PROJECT_ROOT / "data" / "raw"
@@ -14,6 +12,24 @@ PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
 
 LABEL_COLUMN = "Label"
 TARGET_COLUMN = "Is_attack"
+
+
+def normalize_label_text(label_value):
+    if label_value is None:
+        return ""
+
+    if label_value != label_value:
+        return ""
+
+    cleaned_label = str(label_value).strip()
+
+    for broken_chunk in ("ï¿½", "Ï¿½", "�", "–", "—"):
+        cleaned_label = cleaned_label.replace(broken_chunk, "-")
+
+    cleaned_label = cleaned_label.upper()
+    cleaned_label = " ".join(cleaned_label.split())
+
+    return cleaned_label
 
 
 def processed_name_from_raw(raw_path):
@@ -30,7 +46,7 @@ def clean_raw_dataframe(dataframe):
     dataframe = dataframe.copy()
     dataframe.columns = dataframe.columns.str.strip()
     # Clean column names and normalize labels for consistency.
-    dataframe[LABEL_COLUMN] = dataframe[LABEL_COLUMN].astype(str).str.strip().str.upper()
+    dataframe[LABEL_COLUMN] = dataframe[LABEL_COLUMN].map(normalize_label_text)
     dataframe[TARGET_COLUMN] = (dataframe[LABEL_COLUMN] != "BENIGN").astype(int)
 
     # Replace infinities and NaNs to keep models stable.

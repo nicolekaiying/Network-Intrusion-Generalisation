@@ -32,7 +32,7 @@ model = RandomForestClassifier(
     n_jobs=-1 # (-1) Speedup training by using all available CPU cores, (1) Uses one core, (2) Uses two cores
 )
 
-# Essentially what this tells the model to do is to learn the patterns that separates 0 and 1 from the many example network traffics
+# Essentially what this tells the model to do is to learn the patterns that separates 0 and 1 from the many network traffics example
 model.fit(features_train, target_train)
 
 # Saves it to a file to be reused later

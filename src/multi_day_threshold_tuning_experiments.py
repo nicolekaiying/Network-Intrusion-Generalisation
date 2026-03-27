@@ -31,7 +31,7 @@ VALIDATION_SIZE = 0.2
 THRESHOLD_VALUES = [round(value / 100, 2) for value in range(1, 100)]
 MINIMUM_PRECISION = 0.70
 RANDOM_FOREST_MAX_FEATURES_OPTIONS = ["sqrt", "log2", 0.2]
-RANDOM_FOREST_ESTIMATORS = 100
+RANDOM_FOREST_ESTIMATORS = 300
 RANDOM_FOREST_MAX_DEPTH = 12
 RANDOM_FOREST_MIN_SAMPLES_SPLIT = 6
 RANDOM_FOREST_MIN_SAMPLES_LEAF = 4
@@ -202,20 +202,16 @@ def main():
 
             training_features_scaled = threshold_scaler.transform(training_features)
             validation_features_scaled = threshold_scaler.transform(validation_features)
-            held_out_test_features_scaled = threshold_scaler.transform(
-                held_out_test_features
-            )
+            held_out_test_features_scaled = threshold_scaler.transform(held_out_test_features)
 
             threshold_model = LogisticRegression(
-                max_iter=300,
+                max_iter=1000,
                 class_weight="balanced",
                 solver="lbfgs",
             )
             threshold_model.fit(training_features_scaled, training_labels)
 
-            validation_probabilities = threshold_model.predict_proba(
-                validation_features_scaled
-            )[:, 1]
+            validation_probabilities = threshold_model.predict_proba(validation_features_scaled)[:, 1]
 
             chosen_threshold, validation_metrics, _ = choose_best_threshold(
                 validation_labels,
@@ -224,17 +220,9 @@ def main():
                 MINIMUM_PRECISION,
             )
 
-            held_out_attack_probabilities = threshold_model.predict_proba(
-                held_out_test_features_scaled
-            )[:, 1]
-            held_out_predictions = predictions_from_threshold(
-                held_out_attack_probabilities,
-                chosen_threshold,
-            )
-            held_out_metrics = evaluate_predictions(
-                held_out_test_labels,
-                held_out_predictions,
-            )
+            held_out_attack_probabilities = threshold_model.predict_proba(held_out_test_features_scaled)[:, 1]
+            held_out_predictions = predictions_from_threshold(held_out_attack_probabilities,chosen_threshold)
+            held_out_metrics = evaluate_predictions(held_out_test_labels,held_out_predictions)
 
             validation_metrics_percent = dict(validation_metrics)
             held_out_metrics_percent = dict(held_out_metrics)
@@ -274,9 +262,7 @@ def main():
             )
             random_forest_model.fit(training_features, training_labels)
 
-            held_out_random_forest_probabilities = random_forest_model.predict_proba(
-                held_out_test_features
-            )[:, 1]
+            held_out_random_forest_probabilities = random_forest_model.predict_proba(held_out_test_features)[:, 1]
             held_out_random_forest_predictions = predictions_from_threshold(
                 held_out_random_forest_probabilities,
                 random_forest_selection["chosen_threshold"],

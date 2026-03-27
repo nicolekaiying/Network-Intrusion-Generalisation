@@ -1,14 +1,12 @@
 # Testing model on test sets
 
 import pandas as pd
-import numpy as np
 from pathlib import Path
 import joblib
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-
 processed_csv = PROJECT_ROOT / "data" / "processed" / "Friday_WorkingHours-Afternoon-DDos-Clean.csv"
 
 df = pd.read_csv(processed_csv)

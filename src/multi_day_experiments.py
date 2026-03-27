@@ -90,7 +90,7 @@ def main():
             held_out_test_features_scaled = logistic_regression_scaler.transform(held_out_test_features)
 
             logistic_regression_model = LogisticRegression(
-                max_iter=300,
+                max_iter=1000,
                 class_weight="balanced",
                 solver="lbfgs",
             )

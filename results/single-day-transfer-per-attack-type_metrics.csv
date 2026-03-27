@@ -1,0 +1,169 @@
+Experiment,Feature-Set,Model,Train-Day,Test-Day,Attack-Type,Attack-Rows,Train-Rows,Test-Rows,Precision,Recall,F1
+Single-Day-Transfer,All-features,Logistic-Regression,Friday,Thursday,INFILTRATION,36,500000,456788,0.0019,2.7778,0.0037
+Single-Day-Transfer,All-features,Logistic-Regression,Friday,Thursday,WEB ATTACK - BRUTE FORCE,1507,500000,458259,0.0,0.0,0.0
+Single-Day-Transfer,All-features,Logistic-Regression,Friday,Thursday,WEB ATTACK - SQL INJECTION,21,500000,456773,0.0,0.0,0.0
+Single-Day-Transfer,All-features,Logistic-Regression,Friday,Thursday,WEB ATTACK - XSS,652,500000,457404,0.0,0.0,0.0
+Single-Day-Transfer,All-features,Random-Forest,Friday,Thursday,INFILTRATION,36,500000,456788,0.0,0.0,0.0
+Single-Day-Transfer,All-features,Random-Forest,Friday,Thursday,WEB ATTACK - BRUTE FORCE,1507,500000,458259,0.0,0.0,0.0
+Single-Day-Transfer,All-features,Random-Forest,Friday,Thursday,WEB ATTACK - SQL INJECTION,21,500000,456773,0.0,0.0,0.0
+Single-Day-Transfer,All-features,Random-Forest,Friday,Thursday,WEB ATTACK - XSS,652,500000,457404,0.0062,0.3067,0.0122
+Single-Day-Transfer,All-features,Logistic-Regression,Friday,Tuesday,FTP-PATATOR,7938,500000,440012,0.0,0.0,0.0
+Single-Day-Transfer,All-features,Logistic-Regression,Friday,Tuesday,SSH-PATATOR,5897,500000,437971,0.3307,0.3222,0.3264
+Single-Day-Transfer,All-features,Random-Forest,Friday,Tuesday,FTP-PATATOR,7938,500000,440012,0.0,0.0,0.0
+Single-Day-Transfer,All-features,Random-Forest,Friday,Tuesday,SSH-PATATOR,5897,500000,437971,0.0,0.0,0.0
+Single-Day-Transfer,All-features,Logistic-Regression,Friday,Wednesday,DOS GOLDENEYE,10293,500000,450324,36.7288,30.8268,33.52
+Single-Day-Transfer,All-features,Logistic-Regression,Friday,Wednesday,DOS HULK,231073,500000,671104,94.2132,38.5116,54.6741
+Single-Day-Transfer,All-features,Logistic-Regression,Friday,Wednesday,DOS SLOWHTTPTEST,5499,500000,445530,0.3464,0.3455,0.346
+Single-Day-Transfer,All-features,Logistic-Regression,Friday,Wednesday,DOS SLOWLORIS,5796,500000,445827,22.9924,28.1573,25.3141
+Single-Day-Transfer,All-features,Logistic-Regression,Friday,Wednesday,HEARTBLEED,11,500000,440042,0.0,0.0,0.0
+Single-Day-Transfer,All-features,Random-Forest,Friday,Wednesday,DOS GOLDENEYE,10293,500000,450324,0.0,0.0,0.0
+Single-Day-Transfer,All-features,Random-Forest,Friday,Wednesday,DOS HULK,231073,500000,671104,99.3578,0.9374,1.8572
+Single-Day-Transfer,All-features,Random-Forest,Friday,Wednesday,DOS SLOWHTTPTEST,5499,500000,445530,0.0,0.0,0.0
+Single-Day-Transfer,All-features,Random-Forest,Friday,Wednesday,DOS SLOWLORIS,5796,500000,445827,0.0,0.0,0.0
+Single-Day-Transfer,All-features,Random-Forest,Friday,Wednesday,HEARTBLEED,11,500000,440042,0.0,0.0,0.0
+Single-Day-Transfer,Reduced-Features,Logistic-Regression,Friday,Thursday,INFILTRATION,36,500000,456788,0.0019,2.7778,0.0037
+Single-Day-Transfer,Reduced-Features,Logistic-Regression,Friday,Thursday,WEB ATTACK - BRUTE FORCE,1507,500000,458259,0.0,0.0,0.0
+Single-Day-Transfer,Reduced-Features,Logistic-Regression,Friday,Thursday,WEB ATTACK - SQL INJECTION,21,500000,456773,0.0,0.0,0.0
+Single-Day-Transfer,Reduced-Features,Logistic-Regression,Friday,Thursday,WEB ATTACK - XSS,652,500000,457404,0.0,0.0,0.0
+Single-Day-Transfer,Reduced-Features,Random-Forest,Friday,Thursday,INFILTRATION,36,500000,456788,0.0,0.0,0.0
+Single-Day-Transfer,Reduced-Features,Random-Forest,Friday,Thursday,WEB ATTACK - BRUTE FORCE,1507,500000,458259,0.0,0.0,0.0
+Single-Day-Transfer,Reduced-Features,Random-Forest,Friday,Thursday,WEB ATTACK - SQL INJECTION,21,500000,456773,0.0,0.0,0.0
+Single-Day-Transfer,Reduced-Features,Random-Forest,Friday,Thursday,WEB ATTACK - XSS,652,500000,457404,0.0062,0.3067,0.0122
+Single-Day-Transfer,Reduced-Features,Logistic-Regression,Friday,Tuesday,FTP-PATATOR,7938,500000,440012,0.0,0.0,0.0
+Single-Day-Transfer,Reduced-Features,Logistic-Regression,Friday,Tuesday,SSH-PATATOR,5897,500000,437971,0.3063,0.3222,0.314
+Single-Day-Transfer,Reduced-Features,Random-Forest,Friday,Tuesday,FTP-PATATOR,7938,500000,440012,0.0,0.0,0.0
+Single-Day-Transfer,Reduced-Features,Random-Forest,Friday,Tuesday,SSH-PATATOR,5897,500000,437971,0.0,0.0,0.0
+Single-Day-Transfer,Reduced-Features,Logistic-Regression,Friday,Wednesday,DOS GOLDENEYE,10293,500000,450324,33.5834,28.7088,30.9554
+Single-Day-Transfer,Reduced-Features,Logistic-Regression,Friday,Wednesday,DOS HULK,231073,500000,671104,93.811,38.3346,54.428
+Single-Day-Transfer,Reduced-Features,Logistic-Regression,Friday,Wednesday,DOS SLOWHTTPTEST,5499,500000,445530,0.3241,0.3455,0.3344
+Single-Day-Transfer,Reduced-Features,Logistic-Regression,Friday,Wednesday,DOS SLOWLORIS,5796,500000,445827,21.8299,28.1573,24.5931
+Single-Day-Transfer,Reduced-Features,Logistic-Regression,Friday,Wednesday,HEARTBLEED,11,500000,440042,0.0,0.0,0.0
+Single-Day-Transfer,Reduced-Features,Random-Forest,Friday,Wednesday,DOS GOLDENEYE,10293,500000,450324,0.0,0.0,0.0
+Single-Day-Transfer,Reduced-Features,Random-Forest,Friday,Wednesday,DOS HULK,231073,500000,671104,99.3756,0.8954,1.7748
+Single-Day-Transfer,Reduced-Features,Random-Forest,Friday,Wednesday,DOS SLOWHTTPTEST,5499,500000,445530,0.0,0.0,0.0
+Single-Day-Transfer,Reduced-Features,Random-Forest,Friday,Wednesday,DOS SLOWLORIS,5796,500000,445827,0.0,0.0,0.0
+Single-Day-Transfer,Reduced-Features,Random-Forest,Friday,Wednesday,HEARTBLEED,11,500000,440042,0.0,0.0,0.0
+Single-Day-Transfer,All-features,Logistic-Regression,Thursday,Friday,BOT,1966,8864,416288,0.1629,1.8311,0.2992
+Single-Day-Transfer,All-features,Logistic-Regression,Thursday,Friday,DDOS,128027,8864,542349,49.1881,16.6809,24.9131
+Single-Day-Transfer,All-features,Logistic-Regression,Thursday,Friday,PORTSCAN,158930,8864,573252,75.1875,42.0625,53.9459
+Single-Day-Transfer,All-features,Random-Forest,Thursday,Friday,BOT,1966,8864,416288,0.0,0.0,0.0
+Single-Day-Transfer,All-features,Random-Forest,Thursday,Friday,DDOS,128027,8864,542349,0.0,0.0,0.0
+Single-Day-Transfer,All-features,Random-Forest,Thursday,Friday,PORTSCAN,158930,8864,573252,2.2076,0.061,0.1188
+Single-Day-Transfer,All-features,Logistic-Regression,Thursday,Tuesday,FTP-PATATOR,7938,8864,440012,30.9468,85.4371,45.436
+Single-Day-Transfer,All-features,Logistic-Regression,Thursday,Tuesday,SSH-PATATOR,5897,8864,437971,16.1467,49.415,24.3401
+Single-Day-Transfer,All-features,Random-Forest,Thursday,Tuesday,FTP-PATATOR,7938,8864,440012,0.2012,0.0252,0.0448
+Single-Day-Transfer,All-features,Random-Forest,Thursday,Tuesday,SSH-PATATOR,5897,8864,437971,74.0721,48.0583,58.2948
+Single-Day-Transfer,All-features,Logistic-Regression,Thursday,Wednesday,DOS GOLDENEYE,10293,8864,450324,25.3164,63.9367,36.2709
+Single-Day-Transfer,All-features,Logistic-Regression,Thursday,Wednesday,DOS HULK,231073,8864,671104,38.2467,5.2036,9.1608
+Single-Day-Transfer,All-features,Logistic-Regression,Thursday,Wednesday,DOS SLOWHTTPTEST,5499,8864,445530,18.3943,79.5781,29.8815
+Single-Day-Transfer,All-features,Logistic-Regression,Thursday,Wednesday,DOS SLOWLORIS,5796,8864,445827,16.8672,67.9607,27.0267
+Single-Day-Transfer,All-features,Logistic-Regression,Thursday,Wednesday,HEARTBLEED,11,8864,440042,0.0515,90.9091,0.1029
+Single-Day-Transfer,All-features,Random-Forest,Thursday,Wednesday,DOS GOLDENEYE,10293,8864,450324,49.9483,4.6925,8.579
+Single-Day-Transfer,All-features,Random-Forest,Thursday,Wednesday,DOS HULK,231073,8864,671104,61.4343,0.3337,0.6637
+Single-Day-Transfer,All-features,Random-Forest,Thursday,Wednesday,DOS SLOWHTTPTEST,5499,8864,445530,1.626,0.1455,0.2671
+Single-Day-Transfer,All-features,Random-Forest,Thursday,Wednesday,DOS SLOWLORIS,5796,8864,445827,1.8256,0.1553,0.2862
+Single-Day-Transfer,All-features,Random-Forest,Thursday,Wednesday,HEARTBLEED,11,8864,440042,0.0,0.0,0.0
+Single-Day-Transfer,Reduced-Features,Logistic-Regression,Thursday,Friday,BOT,1966,8864,416288,0.1629,1.8311,0.2992
+Single-Day-Transfer,Reduced-Features,Logistic-Regression,Thursday,Friday,DDOS,128027,8864,542349,49.1881,16.6809,24.9131
+Single-Day-Transfer,Reduced-Features,Logistic-Regression,Thursday,Friday,PORTSCAN,158930,8864,573252,75.1875,42.0625,53.9459
+Single-Day-Transfer,Reduced-Features,Random-Forest,Thursday,Friday,BOT,1966,8864,416288,0.0,0.0,0.0
+Single-Day-Transfer,Reduced-Features,Random-Forest,Thursday,Friday,DDOS,128027,8864,542349,0.0,0.0,0.0
+Single-Day-Transfer,Reduced-Features,Random-Forest,Thursday,Friday,PORTSCAN,158930,8864,573252,2.3172,0.1328,0.2511
+Single-Day-Transfer,Reduced-Features,Logistic-Regression,Thursday,Tuesday,FTP-PATATOR,7938,8864,440012,30.9468,85.4371,45.436
+Single-Day-Transfer,Reduced-Features,Logistic-Regression,Thursday,Tuesday,SSH-PATATOR,5897,8864,437971,16.1467,49.415,24.3401
+Single-Day-Transfer,Reduced-Features,Random-Forest,Thursday,Tuesday,FTP-PATATOR,7938,8864,440012,0.5459,0.063,0.1129
+Single-Day-Transfer,Reduced-Features,Random-Forest,Thursday,Tuesday,SSH-PATATOR,5897,8864,437971,75.6742,48.0583,58.7845
+Single-Day-Transfer,Reduced-Features,Logistic-Regression,Thursday,Wednesday,DOS GOLDENEYE,10293,8864,450324,25.3164,63.9367,36.2709
+Single-Day-Transfer,Reduced-Features,Logistic-Regression,Thursday,Wednesday,DOS HULK,231073,8864,671104,38.2467,5.2036,9.1608
+Single-Day-Transfer,Reduced-Features,Logistic-Regression,Thursday,Wednesday,DOS SLOWHTTPTEST,5499,8864,445530,18.3943,79.5781,29.8815
+Single-Day-Transfer,Reduced-Features,Logistic-Regression,Thursday,Wednesday,DOS SLOWLORIS,5796,8864,445827,16.8672,67.9607,27.0267
+Single-Day-Transfer,Reduced-Features,Logistic-Regression,Thursday,Wednesday,HEARTBLEED,11,8864,440042,0.0515,90.9091,0.1029
+Single-Day-Transfer,Reduced-Features,Random-Forest,Thursday,Wednesday,DOS GOLDENEYE,10293,8864,450324,56.8698,4.6245,8.5535
+Single-Day-Transfer,Reduced-Features,Random-Forest,Thursday,Wednesday,DOS HULK,231073,8864,671104,65.6518,0.2986,0.5945
+Single-Day-Transfer,Reduced-Features,Random-Forest,Thursday,Wednesday,DOS SLOWHTTPTEST,5499,8864,445530,2.168,0.1455,0.2727
+Single-Day-Transfer,Reduced-Features,Random-Forest,Thursday,Wednesday,DOS SLOWLORIS,5796,8864,445827,2.4324,0.1553,0.2919
+Single-Day-Transfer,Reduced-Features,Random-Forest,Thursday,Wednesday,HEARTBLEED,11,8864,440042,0.0,0.0,0.0
+Single-Day-Transfer,All-features,Logistic-Regression,Tuesday,Friday,BOT,1966,55340,416288,0.0,0.0,0.0
+Single-Day-Transfer,All-features,Logistic-Regression,Tuesday,Friday,DDOS,128027,55340,542349,0.1814,0.0125,0.0234
+Single-Day-Transfer,All-features,Logistic-Regression,Tuesday,Friday,PORTSCAN,158930,55340,573252,75.3604,16.9408,27.663
+Single-Day-Transfer,All-features,Random-Forest,Tuesday,Friday,BOT,1966,55340,416288,0.0,0.0,0.0
+Single-Day-Transfer,All-features,Random-Forest,Tuesday,Friday,DDOS,128027,55340,542349,0.0,0.0,0.0
+Single-Day-Transfer,All-features,Random-Forest,Tuesday,Friday,PORTSCAN,158930,55340,573252,67.6692,0.0566,0.1132
+Single-Day-Transfer,All-features,Logistic-Regression,Tuesday,Thursday,INFILTRATION,36,55340,456788,0.0101,11.1111,0.0202
+Single-Day-Transfer,All-features,Logistic-Regression,Tuesday,Thursday,WEB ATTACK - BRUTE FORCE,1507,55340,458259,0.3596,9.4891,0.693
+Single-Day-Transfer,All-features,Logistic-Regression,Tuesday,Thursday,WEB ATTACK - SQL INJECTION,21,55340,456773,0.0227,42.8571,0.0454
+Single-Day-Transfer,All-features,Logistic-Regression,Tuesday,Thursday,WEB ATTACK - XSS,652,55340,457404,0.0151,0.9202,0.0298
+Single-Day-Transfer,All-features,Random-Forest,Tuesday,Thursday,INFILTRATION,36,55340,456788,0.0,0.0,0.0
+Single-Day-Transfer,All-features,Random-Forest,Tuesday,Thursday,WEB ATTACK - BRUTE FORCE,1507,55340,458259,0.0,0.0,0.0
+Single-Day-Transfer,All-features,Random-Forest,Tuesday,Thursday,WEB ATTACK - SQL INJECTION,21,55340,456773,0.0,0.0,0.0
+Single-Day-Transfer,All-features,Random-Forest,Tuesday,Thursday,WEB ATTACK - XSS,652,55340,457404,0.0,0.0,0.0
+Single-Day-Transfer,All-features,Logistic-Regression,Tuesday,Wednesday,DOS GOLDENEYE,10293,55340,450324,0.607,0.7287,0.6623
+Single-Day-Transfer,All-features,Logistic-Regression,Tuesday,Wednesday,DOS HULK,231073,55340,671104,44.1798,4.2065,7.6815
+Single-Day-Transfer,All-features,Logistic-Regression,Tuesday,Wednesday,DOS SLOWHTTPTEST,5499,55340,445530,0.0488,0.1091,0.0675
+Single-Day-Transfer,All-features,Logistic-Regression,Tuesday,Wednesday,DOS SLOWLORIS,5796,55340,445827,4.1071,9.0752,5.655
+Single-Day-Transfer,All-features,Logistic-Regression,Tuesday,Wednesday,HEARTBLEED,11,55340,440042,0.0,0.0,0.0
+Single-Day-Transfer,All-features,Random-Forest,Tuesday,Wednesday,DOS GOLDENEYE,10293,55340,450324,0.0,0.0,0.0
+Single-Day-Transfer,All-features,Random-Forest,Tuesday,Wednesday,DOS HULK,231073,55340,671104,0.0,0.0,0.0
+Single-Day-Transfer,All-features,Random-Forest,Tuesday,Wednesday,DOS SLOWHTTPTEST,5499,55340,445530,0.0,0.0,0.0
+Single-Day-Transfer,All-features,Random-Forest,Tuesday,Wednesday,DOS SLOWLORIS,5796,55340,445827,0.0,0.0,0.0
+Single-Day-Transfer,All-features,Random-Forest,Tuesday,Wednesday,HEARTBLEED,11,55340,440042,0.0,0.0,0.0
+Single-Day-Transfer,Reduced-Features,Logistic-Regression,Tuesday,Friday,BOT,1966,55340,416288,0.0,0.0,0.0
+Single-Day-Transfer,Reduced-Features,Logistic-Regression,Tuesday,Friday,DDOS,128027,55340,542349,0.1814,0.0125,0.0234
+Single-Day-Transfer,Reduced-Features,Logistic-Regression,Tuesday,Friday,PORTSCAN,158930,55340,573252,75.3748,16.954,27.6816
+Single-Day-Transfer,Reduced-Features,Random-Forest,Tuesday,Friday,BOT,1966,55340,416288,0.0,0.0,0.0
+Single-Day-Transfer,Reduced-Features,Random-Forest,Tuesday,Friday,DDOS,128027,55340,542349,0.0,0.0,0.0
+Single-Day-Transfer,Reduced-Features,Random-Forest,Tuesday,Friday,PORTSCAN,158930,55340,573252,84.3003,0.1554,0.3103
+Single-Day-Transfer,Reduced-Features,Logistic-Regression,Tuesday,Thursday,INFILTRATION,36,55340,456788,0.0101,11.1111,0.0202
+Single-Day-Transfer,Reduced-Features,Logistic-Regression,Tuesday,Thursday,WEB ATTACK - BRUTE FORCE,1507,55340,458259,0.3595,9.4891,0.6927
+Single-Day-Transfer,Reduced-Features,Logistic-Regression,Tuesday,Thursday,WEB ATTACK - SQL INJECTION,21,55340,456773,0.0227,42.8571,0.0454
+Single-Day-Transfer,Reduced-Features,Logistic-Regression,Tuesday,Thursday,WEB ATTACK - XSS,652,55340,457404,0.0151,0.9202,0.0298
+Single-Day-Transfer,Reduced-Features,Random-Forest,Tuesday,Thursday,INFILTRATION,36,55340,456788,0.0,0.0,0.0
+Single-Day-Transfer,Reduced-Features,Random-Forest,Tuesday,Thursday,WEB ATTACK - BRUTE FORCE,1507,55340,458259,0.0,0.0,0.0
+Single-Day-Transfer,Reduced-Features,Random-Forest,Tuesday,Thursday,WEB ATTACK - SQL INJECTION,21,55340,456773,0.0,0.0,0.0
+Single-Day-Transfer,Reduced-Features,Random-Forest,Tuesday,Thursday,WEB ATTACK - XSS,652,55340,457404,0.0,0.0,0.0
+Single-Day-Transfer,Reduced-Features,Logistic-Regression,Tuesday,Wednesday,DOS GOLDENEYE,10293,55340,450324,0.607,0.7287,0.6623
+Single-Day-Transfer,Reduced-Features,Logistic-Regression,Tuesday,Wednesday,DOS HULK,231073,55340,671104,44.1798,4.2065,7.6815
+Single-Day-Transfer,Reduced-Features,Logistic-Regression,Tuesday,Wednesday,DOS SLOWHTTPTEST,5499,55340,445530,0.0488,0.1091,0.0675
+Single-Day-Transfer,Reduced-Features,Logistic-Regression,Tuesday,Wednesday,DOS SLOWLORIS,5796,55340,445827,4.1071,9.0752,5.655
+Single-Day-Transfer,Reduced-Features,Logistic-Regression,Tuesday,Wednesday,HEARTBLEED,11,55340,440042,0.0,0.0,0.0
+Single-Day-Transfer,Reduced-Features,Random-Forest,Tuesday,Wednesday,DOS GOLDENEYE,10293,55340,450324,0.0,0.0,0.0
+Single-Day-Transfer,Reduced-Features,Random-Forest,Tuesday,Wednesday,DOS HULK,231073,55340,671104,0.0,0.0,0.0
+Single-Day-Transfer,Reduced-Features,Random-Forest,Tuesday,Wednesday,DOS SLOWHTTPTEST,5499,55340,445530,0.0,0.0,0.0
+Single-Day-Transfer,Reduced-Features,Random-Forest,Tuesday,Wednesday,DOS SLOWLORIS,5796,55340,445827,0.0,0.0,0.0
+Single-Day-Transfer,Reduced-Features,Random-Forest,Tuesday,Wednesday,HEARTBLEED,11,55340,440042,0.0,0.0,0.0
+Single-Day-Transfer,All-features,Logistic-Regression,Wednesday,Friday,BOT,1966,500000,416288,0.0,0.0,0.0
+Single-Day-Transfer,All-features,Logistic-Regression,Wednesday,Friday,DDOS,128027,500000,542349,92.8124,63.9857,75.7492
+Single-Day-Transfer,All-features,Logistic-Regression,Wednesday,Friday,PORTSCAN,158930,500000,573252,34.6316,2.1148,3.9861
+Single-Day-Transfer,All-features,Random-Forest,Wednesday,Friday,BOT,1966,500000,416288,0.0,0.0,0.0
+Single-Day-Transfer,All-features,Random-Forest,Wednesday,Friday,DDOS,128027,500000,542349,98.2054,63.5171,77.141
+Single-Day-Transfer,All-features,Random-Forest,Wednesday,Friday,PORTSCAN,158930,500000,573252,8.7224,0.0893,0.1769
+Single-Day-Transfer,All-features,Logistic-Regression,Wednesday,Thursday,INFILTRATION,36,500000,456788,0.0141,2.7778,0.0281
+Single-Day-Transfer,All-features,Logistic-Regression,Wednesday,Thursday,WEB ATTACK - BRUTE FORCE,1507,500000,458259,0.0141,0.0664,0.0233
+Single-Day-Transfer,All-features,Logistic-Regression,Wednesday,Thursday,WEB ATTACK - SQL INJECTION,21,500000,456773,0.0141,4.7619,0.0281
+Single-Day-Transfer,All-features,Logistic-Regression,Wednesday,Thursday,WEB ATTACK - XSS,652,500000,457404,0.2673,2.9141,0.4897
+Single-Day-Transfer,All-features,Random-Forest,Wednesday,Thursday,INFILTRATION,36,500000,456788,0.0,0.0,0.0
+Single-Day-Transfer,All-features,Random-Forest,Wednesday,Thursday,WEB ATTACK - BRUTE FORCE,1507,500000,458259,0.0,0.0,0.0
+Single-Day-Transfer,All-features,Random-Forest,Wednesday,Thursday,WEB ATTACK - SQL INJECTION,21,500000,456773,0.4644,14.2857,0.8996
+Single-Day-Transfer,All-features,Random-Forest,Wednesday,Thursday,WEB ATTACK - XSS,652,500000,457404,2.7231,2.7607,2.7418
+Single-Day-Transfer,All-features,Logistic-Regression,Wednesday,Tuesday,FTP-PATATOR,7938,500000,440012,31.1482,49.8614,38.3434
+Single-Day-Transfer,All-features,Logistic-Regression,Wednesday,Tuesday,SSH-PATATOR,5897,500000,437971,0.2395,0.3561,0.2864
+Single-Day-Transfer,All-features,Random-Forest,Wednesday,Tuesday,FTP-PATATOR,7938,500000,440012,0.0,0.0,0.0
+Single-Day-Transfer,All-features,Random-Forest,Wednesday,Tuesday,SSH-PATATOR,5897,500000,437971,0.0877,0.0678,0.0765
+Single-Day-Transfer,Reduced-Features,Logistic-Regression,Wednesday,Friday,BOT,1966,500000,416288,0.0,0.0,0.0
+Single-Day-Transfer,Reduced-Features,Logistic-Regression,Wednesday,Friday,DDOS,128027,500000,542349,92.799,63.9779,75.7393
+Single-Day-Transfer,Reduced-Features,Logistic-Regression,Wednesday,Friday,PORTSCAN,158930,500000,573252,34.5417,2.1104,3.9777
+Single-Day-Transfer,Reduced-Features,Random-Forest,Wednesday,Friday,BOT,1966,500000,416288,0.0,0.0,0.0
+Single-Day-Transfer,Reduced-Features,Random-Forest,Wednesday,Friday,DDOS,128027,500000,542349,98.7706,63.5077,77.3079
+Single-Day-Transfer,Reduced-Features,Random-Forest,Wednesday,Friday,PORTSCAN,158930,500000,573252,12.305,0.0893,0.1774
+Single-Day-Transfer,Reduced-Features,Logistic-Regression,Wednesday,Thursday,INFILTRATION,36,500000,456788,0.0142,2.7778,0.0284
+Single-Day-Transfer,Reduced-Features,Logistic-Regression,Wednesday,Thursday,WEB ATTACK - BRUTE FORCE,1507,500000,458259,0.0285,0.1327,0.0469
+Single-Day-Transfer,Reduced-Features,Logistic-Regression,Wednesday,Thursday,WEB ATTACK - SQL INJECTION,21,500000,456773,0.0142,4.7619,0.0284
+Single-Day-Transfer,Reduced-Features,Logistic-Regression,Wednesday,Thursday,WEB ATTACK - XSS,652,500000,457404,0.27,2.9141,0.4943
+Single-Day-Transfer,Reduced-Features,Random-Forest,Wednesday,Thursday,INFILTRATION,36,500000,456788,0.0,0.0,0.0
+Single-Day-Transfer,Reduced-Features,Random-Forest,Wednesday,Thursday,WEB ATTACK - BRUTE FORCE,1507,500000,458259,0.0,0.0,0.0
+Single-Day-Transfer,Reduced-Features,Random-Forest,Wednesday,Thursday,WEB ATTACK - SQL INJECTION,21,500000,456773,0.5976,14.2857,1.1472
+Single-Day-Transfer,Reduced-Features,Random-Forest,Wednesday,Thursday,WEB ATTACK - XSS,652,500000,457404,3.4816,2.7607,3.0796
+Single-Day-Transfer,Reduced-Features,Logistic-Regression,Wednesday,Tuesday,FTP-PATATOR,7938,500000,440012,31.0537,49.8236,38.2606
+Single-Day-Transfer,Reduced-Features,Logistic-Regression,Wednesday,Tuesday,SSH-PATATOR,5897,500000,437971,0.2386,0.3561,0.2857
+Single-Day-Transfer,Reduced-Features,Random-Forest,Wednesday,Tuesday,FTP-PATATOR,7938,500000,440012,0.0,0.0,0.0
+Single-Day-Transfer,Reduced-Features,Random-Forest,Wednesday,Tuesday,SSH-PATATOR,5897,500000,437971,0.0894,0.0678,0.0771

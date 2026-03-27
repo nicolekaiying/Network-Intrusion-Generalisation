@@ -1,0 +1,57 @@
+Experiment,Feature-Set,Model,Test-Day,Attack-Type,Attack-Rows,Train-Rows,Test-Rows,Precision,Recall,F1
+Multi-Day-Held-Out-Day,All-Features,Logistic-Regression,Friday,BOT,1966,252620,416288,0.233,2.0346,0.4182
+Multi-Day-Held-Out-Day,All-Features,Logistic-Regression,Friday,DDOS,128027,252620,542349,88.1967,99.9484,93.7055
+Multi-Day-Held-Out-Day,All-Features,Logistic-Regression,Friday,PORTSCAN,158930,252620,573252,9.7925,1.1697,2.0898
+Multi-Day-Held-Out-Day,All-Features,Random-Forest,Friday,BOT,1966,252620,416288,0.0,0.0,0.0
+Multi-Day-Held-Out-Day,All-Features,Random-Forest,Friday,DDOS,128027,252620,542349,98.3728,63.5124,77.1892
+Multi-Day-Held-Out-Day,All-Features,Random-Forest,Friday,PORTSCAN,158930,252620,573252,10.1536,0.0956,0.1895
+Multi-Day-Held-Out-Day,Reduced-Features,Logistic-Regression,Friday,BOT,1966,252620,416288,0.2367,1.9837,0.4229
+Multi-Day-Held-Out-Day,Reduced-Features,Logistic-Regression,Friday,DDOS,128027,252620,542349,88.6161,99.9469,93.9411
+Multi-Day-Held-Out-Day,Reduced-Features,Logistic-Regression,Friday,PORTSCAN,158930,252620,573252,8.4846,0.9589,1.7231
+Multi-Day-Held-Out-Day,Reduced-Features,Random-Forest,Friday,BOT,1966,252620,416288,0.0,0.0,0.0
+Multi-Day-Held-Out-Day,Reduced-Features,Random-Forest,Friday,DDOS,128027,252620,542349,98.9078,63.5202,77.3591
+Multi-Day-Held-Out-Day,Reduced-Features,Random-Forest,Friday,PORTSCAN,158930,252620,573252,15.283,0.1019,0.2025
+Multi-Day-Held-Out-Day,All-Features,Logistic-Regression,Thursday,INFILTRATION,36,468368,456788,0.0032,8.3333,0.0065
+Multi-Day-Held-Out-Day,All-Features,Logistic-Regression,Thursday,WEB ATTACK - BRUTE FORCE,1507,468368,458259,0.0011,0.0664,0.0021
+Multi-Day-Held-Out-Day,All-Features,Logistic-Regression,Thursday,WEB ATTACK - SQL INJECTION,21,468368,456773,0.0011,4.7619,0.0022
+Multi-Day-Held-Out-Day,All-Features,Logistic-Regression,Thursday,WEB ATTACK - XSS,652,468368,457404,0.0216,3.0675,0.0429
+Multi-Day-Held-Out-Day,All-Features,Random-Forest,Thursday,INFILTRATION,36,468368,456788,0.0,0.0,0.0
+Multi-Day-Held-Out-Day,All-Features,Random-Forest,Thursday,WEB ATTACK - BRUTE FORCE,1507,468368,458259,0.0,0.0,0.0
+Multi-Day-Held-Out-Day,All-Features,Random-Forest,Thursday,WEB ATTACK - SQL INJECTION,21,468368,456773,0.1136,9.5238,0.2246
+Multi-Day-Held-Out-Day,All-Features,Random-Forest,Thursday,WEB ATTACK - XSS,652,468368,457404,0.9577,2.6074,1.4009
+Multi-Day-Held-Out-Day,Reduced-Features,Logistic-Regression,Thursday,INFILTRATION,36,468368,456788,0.0033,8.3333,0.0065
+Multi-Day-Held-Out-Day,Reduced-Features,Logistic-Regression,Thursday,WEB ATTACK - BRUTE FORCE,1507,468368,458259,0.0011,0.0664,0.0021
+Multi-Day-Held-Out-Day,Reduced-Features,Logistic-Regression,Thursday,WEB ATTACK - SQL INJECTION,21,468368,456773,0.0011,4.7619,0.0022
+Multi-Day-Held-Out-Day,Reduced-Features,Logistic-Regression,Thursday,WEB ATTACK - XSS,652,468368,457404,0.0217,3.0675,0.043
+Multi-Day-Held-Out-Day,Reduced-Features,Random-Forest,Thursday,INFILTRATION,36,468368,456788,0.0,0.0,0.0
+Multi-Day-Held-Out-Day,Reduced-Features,Random-Forest,Thursday,WEB ATTACK - BRUTE FORCE,1507,468368,458259,0.0,0.0,0.0
+Multi-Day-Held-Out-Day,Reduced-Features,Random-Forest,Thursday,WEB ATTACK - SQL INJECTION,21,468368,456773,0.2909,23.8095,0.5747
+Multi-Day-Held-Out-Day,Reduced-Features,Random-Forest,Thursday,WEB ATTACK - XSS,652,468368,457404,1.0964,2.9141,1.5933
+Multi-Day-Held-Out-Day,All-Features,Logistic-Regression,Tuesday,FTP-PATATOR,7938,456056,440012,10.3853,50.189,17.2095
+Multi-Day-Held-Out-Day,All-Features,Logistic-Regression,Tuesday,SSH-PATATOR,5897,456056,437971,0.0814,0.4748,0.1389
+Multi-Day-Held-Out-Day,All-Features,Random-Forest,Tuesday,FTP-PATATOR,7938,456056,440012,0.0595,0.0126,0.0208
+Multi-Day-Held-Out-Day,All-Features,Random-Forest,Tuesday,SSH-PATATOR,5897,456056,437971,0.2967,0.0848,0.1319
+Multi-Day-Held-Out-Day,Reduced-Features,Logistic-Regression,Tuesday,FTP-PATATOR,7938,456056,440012,10.3766,50.189,17.1976
+Multi-Day-Held-Out-Day,Reduced-Features,Logistic-Regression,Tuesday,SSH-PATATOR,5897,456056,437971,0.0813,0.4748,0.1388
+Multi-Day-Held-Out-Day,Reduced-Features,Random-Forest,Tuesday,FTP-PATATOR,7938,456056,440012,0.0623,0.0126,0.021
+Multi-Day-Held-Out-Day,Reduced-Features,Random-Forest,Tuesday,SSH-PATATOR,5897,456056,437971,1.2315,0.3392,0.5318
+Multi-Day-Held-Out-Day,All-Features,Logistic-Regression,Wednesday,DOS GOLDENEYE,10293,285284,450324,28.2922,48.6544,35.7791
+Multi-Day-Held-Out-Day,All-Features,Logistic-Regression,Wednesday,DOS HULK,231073,285284,671104,89.3756,46.2092,60.9209
+Multi-Day-Held-Out-Day,All-Features,Logistic-Regression,Wednesday,DOS SLOWHTTPTEST,5499,285284,445530,2.3165,5.4737,3.2553
+Multi-Day-Held-Out-Day,All-Features,Logistic-Regression,Wednesday,DOS SLOWLORIS,5796,285284,445827,15.6723,40.7005,22.6305
+Multi-Day-Held-Out-Day,All-Features,Logistic-Regression,Wednesday,HEARTBLEED,11,285284,440042,0.0787,90.9091,0.1573
+Multi-Day-Held-Out-Day,All-Features,Random-Forest,Wednesday,DOS GOLDENEYE,10293,285284,450324,0.0,0.0,0.0
+Multi-Day-Held-Out-Day,All-Features,Random-Forest,Wednesday,DOS HULK,231073,285284,671104,98.4985,0.8517,1.6888
+Multi-Day-Held-Out-Day,All-Features,Random-Forest,Wednesday,DOS SLOWHTTPTEST,5499,285284,445530,6.25,0.0364,0.0723
+Multi-Day-Held-Out-Day,All-Features,Random-Forest,Wednesday,DOS SLOWLORIS,5796,285284,445827,9.0909,0.0518,0.1029
+Multi-Day-Held-Out-Day,All-Features,Random-Forest,Wednesday,HEARTBLEED,11,285284,440042,0.0,0.0,0.0
+Multi-Day-Held-Out-Day,Reduced-Features,Logistic-Regression,Wednesday,DOS GOLDENEYE,10293,285284,450324,28.1859,49.2082,35.8419
+Multi-Day-Held-Out-Day,Reduced-Features,Logistic-Regression,Wednesday,DOS HULK,231073,285284,671104,89.2789,46.5069,61.1564
+Multi-Day-Held-Out-Day,Reduced-Features,Logistic-Regression,Wednesday,DOS SLOWHTTPTEST,5499,285284,445530,2.1533,5.1646,3.0394
+Multi-Day-Held-Out-Day,Reduced-Features,Logistic-Regression,Wednesday,DOS SLOWLORIS,5796,285284,445827,5.34,12.5604,7.494
+Multi-Day-Held-Out-Day,Reduced-Features,Logistic-Regression,Wednesday,HEARTBLEED,11,285284,440042,0.0774,90.9091,0.1547
+Multi-Day-Held-Out-Day,Reduced-Features,Random-Forest,Wednesday,DOS GOLDENEYE,10293,285284,450324,0.0,0.0,0.0
+Multi-Day-Held-Out-Day,Reduced-Features,Random-Forest,Wednesday,DOS HULK,231073,285284,671104,98.5456,0.8504,1.6862
+Multi-Day-Held-Out-Day,Reduced-Features,Random-Forest,Wednesday,DOS SLOWHTTPTEST,5499,285284,445530,34.0909,0.2728,0.5412
+Multi-Day-Held-Out-Day,Reduced-Features,Random-Forest,Wednesday,DOS SLOWLORIS,5796,285284,445827,9.375,0.0518,0.103
+Multi-Day-Held-Out-Day,Reduced-Features,Random-Forest,Wednesday,HEARTBLEED,11,285284,440042,0.0,0.0,0.0

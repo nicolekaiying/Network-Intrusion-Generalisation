@@ -10,6 +10,7 @@ from sklearn.model_selection import train_test_split
 
 RANDOM_STATE = 42
 MAX_POOLED_TRAINING_ROWS = 500000
+UNDERSAMPLING_RATIO = 3
 
 
 def evaluate_predictions(true_labels, predicted_labels):
@@ -220,8 +221,13 @@ def undersample_majority_class(training_dataframe):
         larger_class_rows = attack_rows
         smaller_class_rows = benign_rows
 
+    target_larger_class_size = min(
+        len(larger_class_rows),
+        len(smaller_class_rows) * UNDERSAMPLING_RATIO,
+    )
+
     sampled_larger_class_rows = larger_class_rows.sample(
-        n=len(smaller_class_rows),
+        n=target_larger_class_size,
         random_state=RANDOM_STATE,
     )
 
