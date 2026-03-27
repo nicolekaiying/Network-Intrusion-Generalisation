@@ -33,7 +33,7 @@ def main():
     all_feature_columns = common_feature_columns(datasets)
     reduced_columns = reduced_feature_columns(all_feature_columns, datasets=datasets)
     feature_sets = [
-        ("All-features", all_feature_columns),
+        ("All-Features", all_feature_columns),
         ("Reduced-Features", reduced_columns),
     ]
 
